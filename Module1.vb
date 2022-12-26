@@ -39,7 +39,7 @@ Module Module1
 
         Dim Chart1 As New Chart
 
-        ' Add a chart area to the chart
+        ' Add a chart area
         Chart1.ChartAreas.Add("ChartArea1")
 
         ' Set the chart area size and location
