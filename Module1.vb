@@ -57,13 +57,14 @@ Module Module1
             .ChartType = SeriesChartType.Point
         }
 
-        Dim minX As Integer = (2 ^ 15) - 1
-        Dim maxX As Integer = ((2 ^ 15) - 1) * -1
-        Dim minY As Integer = (2 ^ 15) - 1
-        Dim maxY As Integer = ((2 ^ 15) - 1) * -1.0
-
         ' Add data to the series
         If (numberingSpacing <> 0F) Then
+
+            Dim minX As Integer = (2 ^ 15) - 1
+            Dim maxX As Integer = ((2 ^ 15) - 1) * -1
+            Dim minY As Integer = (2 ^ 15) - 1
+            Dim maxY As Integer = ((2 ^ 15) - 1) * -1.0
+
             For Each element As Integer() In data
                 series.Points.Add(element.ElementAt(0), element.ElementAt(1))
                 If (element.ElementAt(0) < minX) Then minX = element.ElementAt(0)
