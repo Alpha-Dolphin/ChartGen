@@ -71,24 +71,7 @@ Module Module1
                 If (element.ElementAt(1) < minY) Then minY = element.ElementAt(1)
                 If (element.ElementAt(1) > maxY) Then maxY = element.ElementAt(1)
             Next element
-        Else
-            For Each element As Integer() In data
-                series.Points.Add(element.ElementAt(0), element.ElementAt(1))
-            Next element
-        End If
 
-        Chart1.Series.Add(series)
-
-        ' Set the axis labels
-        If (Axises.Length = 2) Then
-            Chart1.ChartAreas(0).AxisX.Name = Axises(0)
-            Chart1.ChartAreas(0).AxisY.Name = Axises(1)
-        Else
-            Console.WriteLine("Axises array of wrong length")
-            Throw New Exception
-        End If
-
-        If (numberingSpacing <> 0F) Then
             ' Set the interval of the major tick marks to numberingSpacing
             Chart1.ChartAreas(0).AxisX.MajorTickMark.Interval = numberingSpacing
             Chart1.ChartAreas(0).AxisY.MajorTickMark.Interval = numberingSpacing
@@ -110,9 +93,25 @@ Module Module1
             ' Set the numbers on the y-axis
             Dim intervalY As Double = (maxY - minY) / numberingSpacing
             For i As Integer = minY To maxY Step intervalY
-                    Chart1.ChartAreas(0).AxisY.CustomLabels.Add(i - (intervalY / 2), i + (intervalY / 2), i.ToString())
-                Next i
-            End If
+                Chart1.ChartAreas(0).AxisY.CustomLabels.Add(i - (intervalY / 2), i + (intervalY / 2), i.ToString())
+            Next i
+        Else
+            For Each element As Integer() In data
+                series.Points.Add(element.ElementAt(0), element.ElementAt(1))
+            Next element
+        End If
+
+        Chart1.Series.Add(series)
+
+        ' Set the axis labels
+        If (Axises.Length = 2) Then
+            Chart1.ChartAreas(0).AxisX.Name = Axises(0)
+            Chart1.ChartAreas(0).AxisY.Name = Axises(1)
+        Else
+            Console.WriteLine("Axises array of wrong length")
+            Throw New Exception
+        End If
+
         Return Chart1
     End Function
 
