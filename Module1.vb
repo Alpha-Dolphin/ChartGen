@@ -18,7 +18,7 @@ Module Module1
                 TwoDdata(i / 2) = temp
                 ' So i increments by two
                 i += 1
-            Next
+            Next i
         Catch ex As FormatException
             Console.WriteLine("Invalid number format.")
             Console.ReadLine()
@@ -28,14 +28,14 @@ Module Module1
             Console.ReadLine()
             Exit Sub
         End Try
-        output = ChartGen(TwoDdata, {"X", "Y"})
+        output = ChartGen(TwoDdata, 5.0, "Sample", {"X", "Y"})
         form.Controls.Add(output)
         form.Show()
         Console.WriteLine("Press Enter Key to Exit..")
         Console.ReadLine()
     End Sub
 
-    Public Function ChartGen(data As Integer()(), Axises As String())
+    Public Function ChartGen(data As Integer()(), numberingSpacing As Decimal, Title As String, Axises As String())
 
         Dim Chart1 As New Chart
 
@@ -49,7 +49,7 @@ Module Module1
         Chart1.ChartAreas(0).Position.Height = 50
 
         ' Set the chart title
-        Chart1.Titles.Add("Data Visualization")
+        Chart1.Titles.Add(Title)
 
         ' Create a new series and add it to the chart
         Dim series As New Series With {
@@ -57,16 +57,62 @@ Module Module1
             .ChartType = SeriesChartType.Point
         }
 
+        Dim minX As Integer = (2 ^ 15) - 1
+        Dim maxX As Integer = ((2 ^ 15) - 1) * -1
+        Dim minY As Integer = (2 ^ 15) - 1
+        Dim maxY As Integer = ((2 ^ 15) - 1) * -1.0
+
         ' Add data to the series
-        For Each element As Integer() In data
-            series.Points.Add(element.ElementAt(0), element.ElementAt(1))
-        Next element
+        If (numberingSpacing <> 0F) Then
+            For Each element As Integer() In data
+                series.Points.Add(element.ElementAt(0), element.ElementAt(1))
+                If (element.ElementAt(0) < minX) Then minX = element.ElementAt(0)
+                If (element.ElementAt(0) > maxX) Then maxX = element.ElementAt(0)
+                If (element.ElementAt(1) < minY) Then minY = element.ElementAt(1)
+                If (element.ElementAt(1) > maxY) Then maxY = element.ElementAt(1)
+            Next element
+        Else
+            For Each element As Integer() In data
+                series.Points.Add(element.ElementAt(0), element.ElementAt(1))
+            Next element
+        End If
 
         Chart1.Series.Add(series)
 
         ' Set the axis labels
-        Chart1.ChartAreas(0).AxisX.Name = Axises(0)
-        Chart1.ChartAreas(0).AxisY.Name = Axises(1)
+        If (Axises.Length = 2) Then
+            Chart1.ChartAreas(0).AxisX.Name = Axises(0)
+            Chart1.ChartAreas(0).AxisY.Name = Axises(1)
+        Else
+            Console.WriteLine("Axises array of wrong length")
+            Throw New Exception
+        End If
+
+        If (numberingSpacing <> 0F) Then
+            ' Set the interval of the major tick marks to numberingSpacing
+            Chart1.ChartAreas(0).AxisX.MajorTickMark.Interval = numberingSpacing
+            Chart1.ChartAreas(0).AxisY.MajorTickMark.Interval = numberingSpacing
+
+            ' Set the interval of the minor tick marks to numberingSpacing / 2
+            Chart1.ChartAreas(0).AxisX.MinorTickMark.Interval = numberingSpacing / 2
+            Chart1.ChartAreas(0).AxisY.MinorTickMark.Interval = numberingSpacing / 2
+
+            ' Set the interval offset if needed
+            Chart1.ChartAreas(0).AxisX.MajorTickMark.IntervalOffset = numberingSpacing
+            Chart1.ChartAreas(0).AxisY.MajorTickMark.IntervalOffset = numberingSpacing
+
+            ' Set the numbers on the x-axis
+            Dim intervalX As Double = (maxX - minX) / numberingSpacing
+            For i As Integer = minX To maxX Step intervalX
+                Chart1.ChartAreas(0).AxisX.CustomLabels.Add(i - (intervalX / 2), i + (intervalX / 2), i.ToString())
+            Next i
+
+            ' Set the numbers on the y-axis
+            Dim intervalY As Double = (maxY - minY) / numberingSpacing
+            For i As Integer = minY To maxY Step intervalY
+                    Chart1.ChartAreas(0).AxisY.CustomLabels.Add(i - (intervalY / 2), i + (intervalY / 2), i.ToString())
+                Next i
+            End If
         Return Chart1
     End Function
 
